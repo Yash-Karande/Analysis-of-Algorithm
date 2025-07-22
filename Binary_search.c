@@ -1,7 +1,7 @@
 #include<stdio.h>
 void binary_search(int arr[], int size, int key) {
     int low = 1, high = size, mid;
-    while(low < high){
+    while(low <= high){
         mid = (low + high) / 2;
         if(arr[mid] == key) {
             printf("Element found at index %d\n", mid + 1);
