@@ -4,6 +4,7 @@
 void search(char* pat, char* txt) {
     int M = strlen(pat);
     int N = strlen(txt);
+    int found = 0;
 
     // Loop to slide the pattern one by one
     for (int i = 0; i <= N - M; i++) {
@@ -19,24 +20,25 @@ void search(char* pat, char* txt) {
         // If we reached the end of pat[], we found a match
         if (j == M) {
             printf("Pattern found at index %d\n", i);
+            found = 1;
         }
     }
+
+    if (!found)
+        printf("Pattern not found in the text.\n");
 }
 
 int main() {
-    // Example 1
-    char txt1[] = "AABAACAADAABAABA";
-    char pat1[] = "AABA";
+    char txt[100], pat[50];
 
-    // Example 2
-    char txt2[] = "agd";
-    char pat2[] = "g";
+    printf("Enter the text: ");
+    scanf(" %[^\n]", txt);   // reads entire line (including spaces)
 
-    printf("Example 1:\n");
-    search(pat1, txt1);
+    printf("Enter the pattern to search: ");
+    scanf(" %[^\n]", pat);
 
-    printf("\n\nExample 2:\n");
-    search(pat2, txt2);
+    printf("\nSearching for pattern...\n\n");
+    search(pat, txt);
 
     return 0;
 }
