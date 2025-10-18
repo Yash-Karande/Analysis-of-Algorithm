@@ -1,57 +1,69 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-#define MAX 10
-#define INF 99999   // assume large number as infinity
+#define MAX 20
 
-void floydWarshall(int n, int graph[MAX][MAX]) {
-    int dist[MAX][MAX];
+typedef struct {
+    int id;
+    int deadline;
+    int profit;
+} Job;
 
-    // Step 1: Initialize distance matrix as graph matrix
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            dist[i][j] = graph[i][j];
-        }
-    }
-
-    // Step 2: Floyd-Warshall main loop
-    for (int k = 0; k < n; k++) {           // intermediate vertex
-        for (int i = 0; i < n; i++) {       // source
-            for (int j = 0; j < n; j++) {   // destination
-                if (dist[i][k] + dist[k][j] < dist[i][j]) {
-                    dist[i][j] = dist[i][k] + dist[k][j];
-                }
-            }
-        }
-    }
-
-    // Step 3: Print shortest distance matrix
-    printf("\nAll-Pairs Shortest Path Matrix:\n");
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            if (dist[i][j] == INF)
-                printf("%7s", "INF");
-            else
-                printf("%7d", dist[i][j]);
-        }
-        printf("\n");
-    }
+// Compare function for qsort (descending by profit)
+int compare(const void *a, const void *b) {
+    Job *j1 = (Job *)a;
+    Job *j2 = (Job *)b;
+    return j2->profit - j1->profit;  // descending
 }
 
 int main() {
     int n;
-    int graph[MAX][MAX];
+    Job jobs[MAX];
+    int slots[MAX];
+    int maxDeadline = 0, totalProfit = 0;
 
-    printf("Enter number of vertices (max %d): ", MAX);
+    printf("Enter number of jobs (max %d): ", MAX);
     scanf("%d", &n);
 
-    printf("Enter adjacency matrix (use %d for INF where no edge):\n", INF);
+    // Input jobs
     for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            scanf("%d", &graph[i][j]);
+        printf("Enter job id, deadline, profit for job %d: ", i + 1);
+        scanf("%d %d %d", &jobs[i].id, &jobs[i].deadline, &jobs[i].profit);
+
+        if (jobs[i].deadline > maxDeadline)
+            maxDeadline = jobs[i].deadline;
+    }
+
+    // Sort jobs by profit using qsort
+    qsort(jobs, n, sizeof(Job), compare);
+
+    // Initialize slots as empty (-1)
+    for (int i = 0; i <= maxDeadline; i++) {
+        slots[i] = -1;
+    }
+
+    // Job sequencing (Greedy)
+    for (int i = 0; i < n; i++) {
+        for (int j = jobs[i].deadline; j > 0; j--) {
+            if (slots[j] == -1) {
+                slots[j] = i;  // store index of job placed
+                totalProfit += jobs[i].profit;
+                break;
+            }
         }
     }
 
-    floydWarshall(n, graph);
+    // Output result
+    printf("\nScheduled Jobs:\n");
+    for (int i = 1; i <= maxDeadline; i++) {
+        if (slots[i] != -1)
+            printf("Slot %d -> Job %d (Profit %d)\n",
+                   i, jobs[slots[i]].id, jobs[slots[i]].profit);
+        else
+            printf("Slot %d -> (empty)\n", i);
+    }
+
+    printf("\nTotal Profit = %d\n", totalProfit);
 
     return 0;
 }
