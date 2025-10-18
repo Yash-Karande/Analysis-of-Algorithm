@@ -1,56 +1,57 @@
 #include <stdio.h>
-#include <stdbool.h>
 
-// Function to print a subset
-void printSubset(int subset[], int size) {
-    printf("Subset: { ");
-    for (int i = 0; i < size; i++) {
-        printf("%d ", subset[i]);
-    }
-    printf("}\n");
-}
+#define MAX 10
+#define INF 99999   // assume large number as infinity
 
-// Recursive utility function to find subsets that sum to targetSum
-void sumOfSubsetsUtil(int weights[], int targetSum, int n, int subset[], int subsetSize, int sum, int index) {
-    // If current subset sum equals targetSum, print it
-    if (sum == targetSum) {
-        printSubset(subset, subsetSize);
-        return;
-    }
+void floydWarshall(int n, int graph[MAX][MAX]) {
+    int dist[MAX][MAX];
 
-    // Explore further elements
-    for (int i = index; i < n; i++) {
-        if (sum + weights[i] <= targetSum) {
-            subset[subsetSize] = weights[i];
-            sumOfSubsetsUtil(weights, targetSum, n, subset, subsetSize + 1, sum + weights[i], i + 1);
+    // Step 1: Initialize distance matrix as graph matrix
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            dist[i][j] = graph[i][j];
         }
     }
-}
 
-// Function to initialize and start recursion
-void sumOfSubsets(int weights[], int targetSum, int n) {
-    int subset[n];
-    sumOfSubsetsUtil(weights, targetSum, n, subset, 0, 0, 0);
-}
-
-// Main function
-int main() {
-    int n, targetSum;
-
-    printf("Enter the number of elements: ");
-    scanf("%d", &n);
-
-    int weights[n];
-    printf("Enter the elements: ");
-    for (int i = 0; i < n; i++) {
-        scanf("%d", &weights[i]);
+    // Step 2: Floyd-Warshall main loop
+    for (int k = 0; k < n; k++) {           // intermediate vertex
+        for (int i = 0; i < n; i++) {       // source
+            for (int j = 0; j < n; j++) {   // destination
+                if (dist[i][k] + dist[k][j] < dist[i][j]) {
+                    dist[i][j] = dist[i][k] + dist[k][j];
+                }
+            }
+        }
     }
 
-    printf("Enter the target sum: ");
-    scanf("%d", &targetSum);
+    // Step 3: Print shortest distance matrix
+    printf("\nAll-Pairs Shortest Path Matrix:\n");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (dist[i][j] == INF)
+                printf("%7s", "INF");
+            else
+                printf("%7d", dist[i][j]);
+        }
+        printf("\n");
+    }
+}
 
-    printf("\nSubsets with sum %d are:\n", targetSum);
-    sumOfSubsets(weights, targetSum, n);
+int main() {
+    int n;
+    int graph[MAX][MAX];
+
+    printf("Enter number of vertices (max %d): ", MAX);
+    scanf("%d", &n);
+
+    printf("Enter adjacency matrix (use %d for INF where no edge):\n", INF);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &graph[i][j]);
+        }
+    }
+
+    floydWarshall(n, graph);
 
     return 0;
 }
