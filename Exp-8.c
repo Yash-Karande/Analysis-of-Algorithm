@@ -1,71 +1,56 @@
 #include <stdio.h>
-#include <stdlib.h>  
-#include <math.h>
+#include <stdbool.h>
 
-int board[20], count = 0;
-
-// Function to print the board configuration
-void print(int n)
-{
-    int i, j;
-    printf("\n\nSolution %d:\n\n", ++count);
-    
-    // Print column numbers
-    for (i = 1; i <= n; ++i)
-        printf("\t%d", i);
-
-    for (i = 1; i <= n; ++i)
-    {
-        printf("\n\n%d", i);
-        for (j = 1; j <= n; ++j)
-        {
-            if (board[i] == j)
-                printf("\tQ"); // Queen at (i, j)
-            else
-                printf("\t-"); // Empty position
-        }
+// Function to print a subset
+void printSubset(int subset[], int size) {
+    printf("Subset: { ");
+    for (int i = 0; i < size; i++) {
+        printf("%d ", subset[i]);
     }
-    printf("\n");
+    printf("}\n");
 }
 
-// Function to check whether a queen can be placed at row 'row' and column 'col'
-int place(int row, int col)
-{
-    int i;
-    for (i = 1; i <= row - 1; ++i)
-    {
-        // Check same column or diagonal conflict
-        if (board[i] == col || abs(board[i] - col) == abs(i - row))
-            return 0;
+// Recursive utility function to find subsets that sum to targetSum
+void sumOfSubsetsUtil(int weights[], int targetSum, int n, int subset[], int subsetSize, int sum, int index) {
+    // If current subset sum equals targetSum, print it
+    if (sum == targetSum) {
+        printSubset(subset, subsetSize);
+        return;
     }
-    return 1;
-}
 
-// Recursive function to place queens
-void queen(int row, int n)
-{
-    int col;
-    for (col = 1; col <= n; ++col)
-    {
-        if (place(row, col))
-        {
-            board[row] = col;
-            if (row == n)
-                print(n); // If all queens placed, print solution
-            else
-                queen(row + 1, n); // Try next row
+    // Explore further elements
+    for (int i = index; i < n; i++) {
+        if (sum + weights[i] <= targetSum) {
+            subset[subsetSize] = weights[i];
+            sumOfSubsetsUtil(weights, targetSum, n, subset, subsetSize + 1, sum + weights[i], i + 1);
         }
     }
 }
 
-int main()
-{
-    int n;
-    printf(" - N Queens Problem Using Backtracking -");
-    printf("\n\nEnter number of Queens: ");
+// Function to initialize and start recursion
+void sumOfSubsets(int weights[], int targetSum, int n) {
+    int subset[n];
+    sumOfSubsetsUtil(weights, targetSum, n, subset, 0, 0, 0);
+}
+
+// Main function
+int main() {
+    int n, targetSum;
+
+    printf("Enter the number of elements: ");
     scanf("%d", &n);
-    queen(1, n);
-    if (count == 0)
-        printf("\nNo solutions exist for %d queens.\n", n);
+
+    int weights[n];
+    printf("Enter the elements: ");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &weights[i]);
+    }
+
+    printf("Enter the target sum: ");
+    scanf("%d", &targetSum);
+
+    printf("\nSubsets with sum %d are:\n", targetSum);
+    sumOfSubsets(weights, targetSum, n);
+
     return 0;
 }
